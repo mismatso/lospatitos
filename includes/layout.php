@@ -128,7 +128,7 @@ function render_footer(): void
             </div>
         </div>
         <div class="footer__bottom">
-            <p>© <?= e($year) ?> Los Patitos S.A. · Sitio demo ficticio para fines educativos.</p>
+            <p>© <?= e($year) ?> Los Patitos S.A. · Sitio demo ficticio para fines educativos. | By. Mizaq Screencasts</p>
         </div>
     </footer>
 
@@ -153,4 +153,23 @@ function stars(int $rating): string
 {
     $rating = max(0, min(5, $rating));
     return str_repeat('★', $rating) . str_repeat('☆', 5 - $rating);
+}
+
+/**
+ * Devuelve la etiqueta <img> de un producto a partir de la ruta guardada en BD.
+ * Si el registro no tiene imagen, cae de vuelta al emoji como respaldo.
+ *
+ * @param array $datos  Fila con al menos 'imagen' y/o 'emoji' y 'nombre'.
+ * @param string $class Clase CSS para dimensionar la imagen según el contexto.
+ */
+function producto_img(array $datos, string $class = 'media-img'): string
+{
+    $src = trim((string) ($datos['imagen'] ?? ''));
+    $nombre = e((string) ($datos['nombre'] ?? $datos['nombre_producto'] ?? 'Producto'));
+
+    if ($src !== '') {
+        return '<img class="' . e($class) . '" src="' . e($src) . '" alt="' . $nombre . '" loading="lazy">';
+    }
+
+    return '<span class="' . e($class) . ' media-img--emoji">' . e((string) ($datos['emoji'] ?? '🦆')) . '</span>';
 }

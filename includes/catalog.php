@@ -32,7 +32,7 @@ function get_categoria_por_slug(string $slug): ?array
  */
 function get_productos(?string $categoriaSlug = null, ?string $busqueda = null): array
 {
-    $sql = "SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.emoji, p.color_hex,
+    $sql = "SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.emoji, p.imagen, p.color_hex,
                    p.stock, p.destacado, c.nombre AS categoria, c.slug AS categoria_slug
             FROM productos p
             LEFT JOIN categorias c ON c.id = p.categoria_id
@@ -45,8 +45,11 @@ function get_productos(?string $categoriaSlug = null, ?string $busqueda = null):
     }
 
     if ($busqueda !== null && $busqueda !== '') {
-        $sql .= ' AND (p.nombre LIKE :busqueda OR p.descripcion LIKE :busqueda)';
-        $params['busqueda'] = '%' . $busqueda . '%';
+        // Dos placeholders distintos: con ATTR_EMULATE_PREPARES=false no se
+        // puede reutilizar el mismo nombre de parámetro en la consulta.
+        $sql .= ' AND (p.nombre LIKE :busqueda_nombre OR p.descripcion LIKE :busqueda_desc)';
+        $params['busqueda_nombre'] = '%' . $busqueda . '%';
+        $params['busqueda_desc'] = '%' . $busqueda . '%';
     }
 
     $sql .= ' ORDER BY p.destacado DESC, p.nombre ASC';
@@ -61,7 +64,7 @@ function get_productos(?string $categoriaSlug = null, ?string $busqueda = null):
  */
 function get_destacados(int $limite = 6): array
 {
-    $sql = "SELECT id, nombre, slug, descripcion, precio, emoji, color_hex, stock
+    $sql = "SELECT id, nombre, slug, descripcion, precio, emoji, imagen, color_hex, stock
             FROM productos
             WHERE estado = 'activo' AND destacado = 1
             ORDER BY nombre ASC
@@ -74,7 +77,7 @@ function get_destacados(int $limite = 6): array
  */
 function get_producto_por_slug(string $slug): ?array
 {
-    $sql = "SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.emoji, p.color_hex,
+    $sql = "SELECT p.id, p.nombre, p.slug, p.descripcion, p.precio, p.emoji, p.imagen, p.color_hex,
                    p.stock, p.destacado, c.nombre AS categoria, c.slug AS categoria_slug
             FROM productos p
             LEFT JOIN categorias c ON c.id = p.categoria_id
@@ -91,7 +94,7 @@ function get_producto_por_slug(string $slug): ?array
 function get_producto_por_id(int $id): ?array
 {
     $stmt = db()->prepare(
-        "SELECT id, nombre, slug, precio, emoji, color_hex, stock
+        "SELECT id, nombre, slug, precio, emoji, imagen, color_hex, stock
          FROM productos
          WHERE id = :id AND estado = 'activo'
          LIMIT 1"
@@ -145,7 +148,7 @@ function get_resenas_de_usuario(int $usuarioId): array
 {
     $stmt = db()->prepare(
         'SELECT r.id, r.calificacion, r.comentario, r.fecha_creacion,
-                p.nombre AS producto, p.slug AS producto_slug, p.emoji
+                p.nombre AS producto, p.slug AS producto_slug, p.emoji, p.imagen
          FROM resenas r
          JOIN productos p ON p.id = r.producto_id
          WHERE r.usuario_id = :usuario_id

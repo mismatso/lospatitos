@@ -124,7 +124,7 @@ function get_items_de_pedido(int $pedidoId): array
     $stmt = db()->prepare(
         'SELECT i.nombre_producto, i.cantidad, i.precio_unitario,
                 (i.cantidad * i.precio_unitario) AS subtotal,
-                p.slug, p.emoji
+                p.slug, p.emoji, p.imagen
          FROM pedido_items i
          LEFT JOIN productos p ON p.id = i.producto_id
          WHERE i.pedido_id = :pedido_id'

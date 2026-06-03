@@ -104,7 +104,7 @@ render_header('Carrito', 'carrito');
                             <?php foreach ($items as $item): $p = $item['producto']; ?>
                                 <tr>
                                     <td>
-                                        <span style="font-size:1.4rem;"><?= e($p['emoji']) ?></span>
+                                        <?= producto_img($p, 'thumb-img') ?>
                                         <a href="producto.php?slug=<?= e($p['slug']) ?>"><?= e($p['nombre']) ?></a>
                                     </td>
                                     <td class="num"><?= e(money($p['precio'])) ?></td>

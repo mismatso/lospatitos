@@ -46,7 +46,7 @@ render_header('Catálogo', 'productos');
                     <article class="product">
                         <div class="product__media" style="background: <?= e($p['color_hex']) ?>22;">
                             <?php if ((int) $p['destacado'] === 1): ?><span class="product__tag">Destacado</span><?php endif; ?>
-                            <?= e($p['emoji']) ?>
+                            <?= producto_img($p, 'media-img') ?>
                         </div>
                         <div class="product__body">
                             <span class="product__cat"><?= e($p['categoria'] ?? 'General') ?></span>

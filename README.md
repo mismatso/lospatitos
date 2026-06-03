@@ -1,6 +1,6 @@
-# lospatitos.com 🦆
+# Los Patitos 🦆
 
-Tienda demo de **patitos de hule "Los Patitos"** en PHP 8 + MySQL 8 + HTML/CSS/JavaScript vanilla.
+Tienda demo de patitos de hule **«Los Patitos»** en PHP 8 + MySQL 8 + HTML/CSS/JavaScript vanilla.
 
 Aplicación de ejemplo para un curso de programación. Incluye secciones públicas
 (navegables como invitado) y un área de cliente protegida con funcionalidad CRUD
@@ -91,3 +91,9 @@ Luego abra `http://localhost:8000/index.php`.
   sin sesión redirige a `login.php`.
 - Las contraseñas se almacenan con hash BCRYPT; las consultas usan PDO con
   sentencias preparadas y los formularios incluyen token CSRF.
+
+## 📄 Licencia
+
+[LosPatitos](https://github.com/mismatso/lospatitos) © 2026 by [Misael Matamoros](https://t.me/mismatso) está licenciado bajo la **GNU General Public License, version 3 (GPLv3)**. Para más detalles, consulta el archivo [LICENSE](/LICENSE).
+
+!["GPLv3"](https://www.gnu.org/graphics/gplv3-with-text-136x68.png)

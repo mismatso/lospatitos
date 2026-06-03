@@ -64,7 +64,10 @@ render_header('Mis reseñas', 'cuenta');
                 <?php foreach ($resenas as $r): ?>
                     <div class="card">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <h3 style="margin:0;"><?= e($r['emoji']) ?> <a href="producto.php?slug=<?= e($r['producto_slug']) ?>"><?= e($r['producto']) ?></a></h3>
+                            <h3 style="margin:0;display:flex;align-items:center;gap:0.5rem;">
+                                <?= producto_img(['imagen' => $r['imagen'], 'emoji' => $r['emoji'], 'nombre' => $r['producto']], 'thumb-img') ?>
+                                <a href="producto.php?slug=<?= e($r['producto_slug']) ?>"><?= e($r['producto']) ?></a>
+                            </h3>
                             <span class="muted" style="font-size:0.85rem;"><?= e(date('d/m/Y', strtotime((string) $r['fecha_creacion']))) ?></span>
                         </div>
 

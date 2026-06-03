@@ -70,7 +70,7 @@ render_header($producto['nombre'], 'productos');
 
         <div class="detail">
             <div class="detail__media" style="background: linear-gradient(160deg, <?= e($producto['color_hex']) ?>33, <?= e($producto['color_hex']) ?>11);">
-                <?= e($producto['emoji']) ?>
+                <?= producto_img($producto, 'media-img') ?>
             </div>
             <div>
                 <span class="product__cat"><?= e($producto['categoria'] ?? 'General') ?></span>

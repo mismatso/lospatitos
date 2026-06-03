@@ -41,7 +41,7 @@ render_header('Inicio', 'inicio');
                 <article class="product">
                     <div class="product__media" style="background: <?= e($p['color_hex']) ?>22;">
                         <span class="product__tag">Destacado</span>
-                        <?= e($p['emoji']) ?>
+                        <?= producto_img($p, 'media-img') ?>
                     </div>
                     <div class="product__body">
                         <h3 class="product__name"><a href="producto.php?slug=<?= e($p['slug']) ?>"><?= e($p['nombre']) ?></a></h3>

@@ -91,7 +91,7 @@ render_header('Pedido ' . $pedido['codigo'], 'cuenta');
                 <tbody>
                     <?php foreach ($items as $it): ?>
                         <tr>
-                            <td><span style="font-size:1.3rem;"><?= e($it['emoji'] ?? '🦆') ?></span>
+                            <td><?= producto_img($it, 'thumb-img') ?>
                                 <?php if (!empty($it['slug'])): ?>
                                     <a href="producto.php?slug=<?= e($it['slug']) ?>"><?= e($it['nombre_producto']) ?></a>
                                 <?php else: ?>

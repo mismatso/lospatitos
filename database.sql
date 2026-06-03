@@ -45,6 +45,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
 -- ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(30) NULL AFTER password_hash;
 -- ALTER TABLE usuarios ADD COLUMN direccion VARCHAR(255) NULL AFTER telefono;
 
+-- Si la tabla productos ya existía sin la columna de imagen, añádala:
+-- ALTER TABLE productos ADD COLUMN imagen VARCHAR(255) NULL AFTER emoji;
+
 -- =========================================================
 -- 5) Catálogo: categorías y productos.
 -- =========================================================
@@ -64,6 +67,7 @@ CREATE TABLE IF NOT EXISTS productos (
     descripcion TEXT NULL,
     precio DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     emoji VARCHAR(16) NOT NULL DEFAULT '🦆',
+    imagen VARCHAR(255) NULL,
     color_hex VARCHAR(7) NOT NULL DEFAULT '#FFD23F',
     stock INT NOT NULL DEFAULT 0,
     destacado TINYINT(1) NOT NULL DEFAULT 0,
@@ -195,47 +199,49 @@ ON DUPLICATE KEY UPDATE
     descripcion = VALUES(descripcion);
 
 -- Productos.
-INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio, emoji, color_hex, stock, destacado)
+INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio, emoji, imagen, color_hex, stock, destacado)
 VALUES
     (1, 'Patito Clásico Amarillo', 'patito-clasico-amarillo',
      'El original e inconfundible. Pico naranja, mirada tierna y un "cuac" que alegra cualquier bañera. Material flotante y libre de BPA.',
-     4.99, '🦆', '#FFD23F', 120, 1),
+     4.99, '🦆', 'assets/img/productos/patito-clasico-amarillo.png', '#ffffff', 120, 1),
     (1, 'Patito Bebé Mini', 'patito-bebe-mini',
      'Versión pequeñita del clásico, ideal para los más peques de la familia. Se vende en trío.',
-     3.50, '🐤', '#FFE066', 80, 0),
+     3.50, '🐤', 'assets/img/productos/patito-bebe-mini.png', '#ffffff', 80, 0),
     (2, 'Patito Pirata', 'patito-pirata',
      'Con parche, sombrero y espíritu aventurero. Surca los mares de tu lavabo en busca del tesoro de jabón.',
-     7.99, '🏴‍☠️', '#3A3A3A', 45, 1),
+     7.99, '🏴‍☠️', 'assets/img/productos/patito-pirata.png', '#ffffff', 45, 1),
     (2, 'Patito Astronauta', 'patito-astronauta',
      'Listo para el despegue. Casco transparente y traje plateado para explorar la galaxia de la espuma.',
-     8.50, '🚀', '#9AD1E0', 30, 1),
+     8.50, '🚀', 'assets/img/productos/patito-astronauta.png', '#ffffff', 30, 1),
     (2, 'Patito Unicornio', 'patito-unicornio',
      'Mágico, brillante y con cuerno arcoíris. El favorito indiscutible de quienes aman la fantasía.',
-     8.99, '🦄', '#F7A8E0', 38, 1),
+     8.99, '🦄', 'assets/img/productos/patito-unicornio.png', '#ffffff', 38, 1),
     (2, 'Patito Detective', 'patito-detective',
      'Lupa en ala y gabardina puesta: ningún misterio del baño se le resiste. Elemental, querido patito.',
-     7.50, '🔍', '#C9A66B', 25, 0),
+     7.50, '🔍', 'assets/img/productos/patito-detective.png', '#ffffff', 25, 0),
     (2, 'Patito Ninja', 'patito-ninja',
      'Sigiloso y veloz. Aparece y desaparece entre burbujas sin hacer el menor "cuac".',
-     7.99, '🥷', '#2D3142', 28, 0),
+     7.99, '🥷', 'assets/img/productos/patito-ninja.png', '#ffffff', 28, 0),
     (2, 'Patito Princesa', 'patito-princesa',
      'Con corona dorada y vestido de gala. Reina absoluta del reino de la tina.',
-     8.25, '👑', '#FFB3C6', 33, 0),
+     8.25, '👑', 'assets/img/productos/patito-princesa.png', '#ffffff', 33, 0),
     (2, 'Patito Superhéroe', 'patito-superheroe',
      'Capa al viento y antifaz puesto. Siempre listo para salvar el día… y la hora del baño.',
-     8.75, '🦸', '#E63946', 40, 1),
+     8.75, '🦸', 'assets/img/productos/patito-superheroe.png', '#ffffff', 40, 1),
     (3, 'Pack Familia Patito', 'pack-familia-patito',
-     'Mamá, papá y tres patitos bebé. La familia completa para que nadie nade en soledad. ¡Ahorra comprando el set!',
-     16.99, '👨‍👩‍👧‍👦', '#FFC233', 22, 1),
+     'Mamá, papá y dos patitos bebé. La familia completa para que nadie nade en soledad. ¡Ahorra comprando el set!',
+     16.99, '👨‍👩‍👧‍👦', 'assets/img/productos/pack-familia-patito.png', '#ffffff', 22, 1),
     (1, 'Patito Gigante XL', 'patito-gigante-xl',
      'Tamaño descomunal para piscinas y decoración. Imposible que pase desapercibido.',
-     24.99, '🦆', '#FFCC00', 12, 0),
+     24.99, '🦆', 'assets/img/productos/patito-gigante-xl.png', '#ffffff', 12, 0),
     (4, 'Patito LED Brillante', 'patito-led-brillante',
      'Cambia de color al contacto con el agua y crea un espectáculo de luces en tu baño nocturno.',
-     11.99, '💡', '#48CAE4', 18, 1)
+     11.99, '💡', 'assets/img/productos/patito-led-brillante.png', '#ffffff', 18, 1)
 ON DUPLICATE KEY UPDATE
     descripcion = VALUES(descripcion),
     precio = VALUES(precio),
+    emoji = VALUES(emoji),
+    imagen = VALUES(imagen),
     stock = VALUES(stock),
     destacado = VALUES(destacado);
 
