@@ -21,5 +21,5 @@ if (!csrf_validate(is_string($csrfToken) ? $csrfToken : null)) {
 logout_user();
 
 session_start();
-set_flash('success', 'La sesión se cerró correctamente.');
-redirect('index.php');
+set_flash('success', 'La sesión se cerró correctamente. ¡Vuelve pronto! 🦆');
+redirect('login.php');

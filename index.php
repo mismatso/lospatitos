@@ -1,121 +1,116 @@
 <?php
 declare(strict_types=1);
 
-// Habilitar impresion de errores en desarrollo
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/includes/helpers.php';
-require_once __DIR__ . '/includes/csrf.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/catalog.php';
 
-require_guest();
+$destacados = get_destacados(6);
+$categorias = get_categorias();
 
-$flash = get_flash();
-$errors = [];
-$identifier = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identifier = trim($_POST['identifier'] ?? '');
-    $password = (string) ($_POST['password'] ?? '');
-    $csrfToken = $_POST['csrf_token'] ?? null;
-
-    if (!csrf_validate(is_string($csrfToken) ? $csrfToken : null)) {
-        $errors[] = 'La solicitud no es válida. Recargue la página e intente de nuevo.';
-    }
-
-    if ($identifier === '') {
-        $errors[] = 'Debe indicar su usuario o correo electrónico.';
-    }
-
-    if ($password === '') {
-        $errors[] = 'Debe indicar su contraseña.';
-    }
-
-    if ($errors === []) {
-        $user = find_user_by_identifier($identifier);
-
-        if (!$user || $user['estado'] !== 'activo' || !password_verify($password, $user['password_hash'])) {
-            $errors[] = 'Credenciales inválidas. Verifique sus datos e intente nuevamente.';
-        } else {
-            login_user($user);
-            set_flash('success', 'Inicio de sesión correcto. Bienvenido de nuevo.');
-            redirect('dashboard.php');
-        }
-    }
-}
+render_header('Inicio', 'inicio');
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | lospatitos.com</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-<body>
-    <main class="auth-layout">
-        <section class="card auth-card">
-            <div class="brand">
-                <span class="brand__badge">Demo</span>
-                <h1>lospatitos.com</h1>
-                <p>Inicie sesión con su usuario o correo para acceder al dashboard protegido.</p>
+<section class="hero">
+    <div class="container hero__inner">
+        <div>
+            <span class="eyebrow">🦆 Tienda de patitos de hule</span>
+            <h1>Los patitos más felices para tu hogar</h1>
+            <p>Clásicos amarillos, ediciones especiales de colección, packs familiares y accesorios. Llevamos alegría flotante a tu bañera desde 2018.</p>
+            <div class="hero__actions">
+                <a class="button button--primary" href="productos.php">Ver catálogo</a>
+                <a class="button button--ghost" href="nosotros.php">Conócenos</a>
             </div>
+        </div>
+        <div class="hero__art" aria-hidden="true">🦆</div>
+    </div>
+</section>
 
-            <?php if ($flash): ?>
-                <div class="alert alert--<?= e($flash['type']) ?>">
-                    <?= e($flash['message']) ?>
-                </div>
-            <?php endif; ?>
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <span class="eyebrow">Lo más querido</span>
+            <h2>Patitos destacados</h2>
+            <p>Una selección de nuestros favoritos para empezar tu colección.</p>
+        </div>
 
-            <?php if ($errors !== []): ?>
-                <div class="alert alert--error">
-                    <strong>Se encontraron errores:</strong>
-                    <ul>
-                        <?php foreach ($errors as $error): ?>
-                            <li><?= e($error) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+        <div class="grid grid--products">
+            <?php foreach ($destacados as $p): ?>
+                <article class="product">
+                    <div class="product__media" style="background: <?= e($p['color_hex']) ?>22;">
+                        <span class="product__tag">Destacado</span>
+                        <?= e($p['emoji']) ?>
+                    </div>
+                    <div class="product__body">
+                        <h3 class="product__name"><a href="producto.php?slug=<?= e($p['slug']) ?>"><?= e($p['nombre']) ?></a></h3>
+                        <div class="product__price"><?= e(money($p['precio'])) ?></div>
+                        <div class="product__foot">
+                            <a class="button button--ghost button--sm" href="producto.php?slug=<?= e($p['slug']) ?>">Ver</a>
+                            <form method="post" action="carrito.php" style="margin:0;">
+                                <?= csrf_input() ?>
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="producto_id" value="<?= (int) $p['id'] ?>">
+                                <input type="hidden" name="redirect" value="index.php">
+                                <button type="submit" class="button button--primary button--sm">🛒 Agregar</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
-            <form method="post" class="form" data-validate="login" novalidate>
-                <?= csrf_input() ?>
+<section class="section" style="background: #fff;">
+    <div class="container">
+        <div class="section__head">
+            <span class="eyebrow">Explora por estilo</span>
+            <h2>Nuestras categorías</h2>
+        </div>
+        <div class="grid grid--3">
+            <?php foreach ($categorias as $c): ?>
+                <a class="card feature" href="productos.php?categoria=<?= e($c['slug']) ?>" style="text-decoration:none;">
+                    <span class="feature__icon">🦆</span>
+                    <h3><?= e($c['nombre']) ?></h3>
+                    <p><?= e($c['descripcion']) ?></p>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
-                <label class="form__group">
-                    <span>Usuario o correo</span>
-                    <input
-                        type="text"
-                        name="identifier"
-                        value="<?= e($identifier) ?>"
-                        placeholder="analopez o ana@lospatitos.com"
-                        required
-                        maxlength="150"
-                    >
-                </label>
-
-                <label class="form__group">
-                    <span>Contraseña</span>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Ingrese su contraseña"
-                        required
-                        minlength="8"
-                    >
-                </label>
-
-                <button type="submit" class="button button--primary">Entrar</button>
-            </form>
-
-            <div class="auth-footer">
-                <p>Usuarios de prueba incluidos en la base de datos semilla.</p>
-                <a href="registro.php">Crear una cuenta nueva</a>
+<section class="section">
+    <div class="container">
+        <div class="grid grid--3">
+            <div class="card feature">
+                <span class="feature__icon">🚚</span>
+                <h3>Envío flotante</h3>
+                <p>Entregamos en todo el país en 24-48 horas. Empaque cuidado para que tu patito llegue impecable.</p>
             </div>
-        </section>
-    </main>
+            <div class="card feature">
+                <span class="feature__icon">♻️</span>
+                <h3>Materiales seguros</h3>
+                <p>Todos nuestros patitos son libres de BPA y aptos para los más pequeños de la familia.</p>
+            </div>
+            <div class="card feature">
+                <span class="feature__icon">💛</span>
+                <h3>Garantía feliz</h3>
+                <p>¿No quedaste satisfecho? Te devolvemos tu dinero sin preguntas durante 30 días.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <script src="assets/js/app.js"></script>
-</body>
-</html>
+<section class="section">
+    <div class="container text-center">
+        <div class="card" style="background: linear-gradient(160deg,#fff6d6,#ffe9b8);">
+            <h2>Únete a la bandada 🦆</h2>
+            <p class="muted">Crea tu cuenta para guardar tu carrito, seguir tus pedidos y dejar reseñas.</p>
+            <a class="button button--secondary mt-1" href="registro.php">Crear cuenta gratis</a>
+        </div>
+    </div>
+</section>
+<?php
+render_footer();

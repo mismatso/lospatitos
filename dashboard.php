@@ -1,67 +1,91 @@
 <?php
 declare(strict_types=1);
 
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/includes/helpers.php';
-require_once __DIR__ . '/includes/csrf.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/orders.php';
+require_once __DIR__ . '/includes/catalog.php';
 
 $user = require_auth();
-$flash = get_flash();
+
+$pedidos = get_pedidos_de_usuario((int) $user['id']);
+$resenas = get_resenas_de_usuario((int) $user['id']);
+
+$totalGastado = 0.0;
+foreach ($pedidos as $p) {
+    if ($p['estado'] !== 'cancelado') {
+        $totalGastado += (float) $p['total'];
+    }
+}
+
+render_header('Mi cuenta', 'cuenta');
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | lospatitos.com</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-<body>
-    <main class="dashboard-layout">
-        <section class="card dashboard-card">
-            <div class="dashboard-header">
-                <div>
-                    <span class="brand__badge">Área protegida</span>
-                    <h1>Hola, <?= e($user['nombre']) ?></h1>
-                    <p>Esta pantalla solo es accesible con una sesión válida.</p>
+<section class="section">
+    <div class="container">
+        <span class="eyebrow">Área de cliente</span>
+        <h1 class="page-title">Hola, <?= e($user['nombre']) ?> 🦆</h1>
+        <p class="muted">Este es tu panel personal. Solo tú puedes verlo.</p>
+
+        <div class="account-grid mt-2">
+            <div class="stat"><div class="stat__value"><?= count($pedidos) ?></div><div class="stat__label">Pedidos</div></div>
+            <div class="stat"><div class="stat__value"><?= e(money($totalGastado)) ?></div><div class="stat__label">Total comprado</div></div>
+            <div class="stat"><div class="stat__value"><?= count($resenas) ?></div><div class="stat__label">Reseñas escritas</div></div>
+            <div class="stat"><div class="stat__value">🛒 <?= (int) cart_count() ?></div><div class="stat__label">En el carrito</div></div>
+        </div>
+
+        <div class="layout-2col mt-2">
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2 style="margin:0;">Pedidos recientes</h2>
+                    <a href="pedidos.php">Ver todos →</a>
                 </div>
 
-                <form method="post" action="logout.php">
-                    <?= csrf_input() ?>
-                    <button type="submit" class="button button--ghost">Cerrar sesión</button>
-                </form>
+                <?php if ($pedidos === []): ?>
+                    <p class="muted mt-1">Todavía no has hecho ningún pedido. <a href="productos.php">¡Empieza a comprar!</a></p>
+                <?php else: ?>
+                    <table class="table mt-1">
+                        <thead>
+                            <tr><th>Código</th><th>Fecha</th><th>Estado</th><th class="num">Total</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach (array_slice($pedidos, 0, 5) as $p): ?>
+                                <tr>
+                                    <td><a href="pedido.php?id=<?= (int) $p['id'] ?>"><?= e($p['codigo']) ?></a></td>
+                                    <td><?= e(date('d/m/Y', strtotime((string) $p['fecha_creacion']))) ?></td>
+                                    <td><span class="badge badge--estado-<?= e($p['estado']) ?>"><?= e(ucfirst($p['estado'])) ?></span></td>
+                                    <td class="num"><?= e(money($p['total'])) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
 
-            <?php if ($flash): ?>
-                <div class="alert alert--<?= e($flash['type']) ?>">
-                    <?= e($flash['message']) ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="dashboard-grid">
-                <article class="panel">
-                    <h2>Resumen de la sesión</h2>
+            <aside>
+                <div class="card mb-2">
+                    <h3>Tus datos</h3>
                     <ul class="list">
-                        <li><strong>Nombre:</strong> <?= e($user['nombre']) ?></li>
                         <li><strong>Usuario:</strong> <?= e($user['usuario']) ?></li>
                         <li><strong>Correo:</strong> <?= e($user['correo']) ?></li>
-                        <li><strong>Estado:</strong> <?= e($user['estado']) ?></li>
-                        <li><strong>Alta:</strong> <?= e($user['fecha_creacion']) ?></li>
+                        <li><strong>Teléfono:</strong> <?= e($user['telefono'] ?? '—') ?></li>
+                        <li><strong>Dirección:</strong> <?= e($user['direccion'] ?? '—') ?></li>
                     </ul>
-                </article>
+                    <a class="button button--ghost button--sm mt-1" href="perfil.php">Editar perfil</a>
+                </div>
 
-                <article class="panel">
-                    <h2>Notas de seguridad</h2>
-                    <ul class="list">
-                        <li>Las contraseñas se validan con <code>password_verify()</code>.</li>
-                        <li>Los formularios incluyen token CSRF de sesión.</li>
-                        <li>Las consultas usan PDO con sentencias preparadas.</li>
-                        <li>El acceso directo sin sesión redirige al login.</li>
-                    </ul>
-                </article>
-            </div>
-        </section>
-    </main>
-</body>
-</html>
+                <div class="card">
+                    <h3>Accesos rápidos</h3>
+                    <p><a href="productos.php">🦆 Seguir comprando</a></p>
+                    <p><a href="pedidos.php">📦 Mis pedidos</a></p>
+                    <p><a href="mis-resenas.php">⭐ Mis reseñas</a></p>
+                    <p><a href="carrito.php">🛒 Ver carrito</a></p>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+<?php
+render_footer();

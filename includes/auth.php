@@ -30,7 +30,7 @@ function find_user_by_identifier(string $identifier): ?array
 function find_user_by_id(int $id): ?array
 {
     $stmt = db()->prepare(
-        'SELECT id, nombre, correo, usuario, estado, fecha_creacion
+        'SELECT id, nombre, correo, usuario, telefono, direccion, estado, fecha_creacion
          FROM usuarios
          WHERE id = :id
          LIMIT 1'
@@ -39,6 +39,51 @@ function find_user_by_id(int $id): ?array
     $user = $stmt->fetch();
 
     return $user ?: null;
+}
+
+/**
+ * Actualiza los datos de perfil del usuario.
+ */
+function update_user_profile(int $id, string $nombre, string $correo, ?string $telefono, ?string $direccion): void
+{
+    $stmt = db()->prepare(
+        'UPDATE usuarios
+         SET nombre = :nombre, correo = :correo, telefono = :telefono, direccion = :direccion
+         WHERE id = :id'
+    );
+    $stmt->execute([
+        'nombre' => $nombre,
+        'correo' => $correo,
+        'telefono' => ($telefono === '' ? null : $telefono),
+        'direccion' => ($direccion === '' ? null : $direccion),
+        'id' => $id,
+    ]);
+
+    $_SESSION['user_name'] = $nombre;
+}
+
+/**
+ * Devuelve el hash de contraseña vigente del usuario (para verificarla).
+ */
+function get_user_password_hash(int $id): ?string
+{
+    $stmt = db()->prepare('SELECT password_hash FROM usuarios WHERE id = :id LIMIT 1');
+    $stmt->execute(['id' => $id]);
+    $row = $stmt->fetch();
+
+    return $row['password_hash'] ?? null;
+}
+
+/**
+ * Cambia la contraseña del usuario (espera el texto plano nuevo).
+ */
+function update_user_password(int $id, string $nuevaPassword): void
+{
+    $stmt = db()->prepare('UPDATE usuarios SET password_hash = :hash WHERE id = :id');
+    $stmt->execute([
+        'hash' => password_hash($nuevaPassword, PASSWORD_BCRYPT),
+        'id' => $id,
+    ]);
 }
 
 /**
@@ -122,7 +167,7 @@ function require_auth(): array
 
     if ($user === null) {
         set_flash('error', 'Debe iniciar sesión para continuar o su sesión ha expirado.');
-        redirect('index.php');
+        redirect('login.php');
     }
 
     return $user;

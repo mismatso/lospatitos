@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/includes/helpers.php';
-require_once __DIR__ . '/includes/csrf.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/layout.php';
 
 require_guest();
 
@@ -14,14 +15,13 @@ $correo = '';
 $usuario = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre'] ?? '');
-    $correo = trim($_POST['correo'] ?? '');
-    $usuario = trim($_POST['usuario'] ?? '');
+    $nombre = trim((string) ($_POST['nombre'] ?? ''));
+    $correo = trim((string) ($_POST['correo'] ?? ''));
+    $usuario = trim((string) ($_POST['usuario'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
     $passwordConfirm = (string) ($_POST['password_confirm'] ?? '');
-    $csrfToken = $_POST['csrf_token'] ?? null;
 
-    if (!csrf_validate(is_string($csrfToken) ? $csrfToken : null)) {
+    if (!csrf_validate(is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : null)) {
         $errors[] = 'La solicitud no es válida. Recargue la página e intente nuevamente.';
     }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             set_flash('success', 'Registro completado. Ya puede iniciar sesión con su nueva cuenta.');
-            redirect('index.php');
+            redirect('login.php');
         } catch (PDOException $exception) {
             if ((int) $exception->getCode() === 23000) {
                 $errors[] = 'El correo o el nombre de usuario ya existen. Pruebe con otros valores.';
@@ -70,72 +70,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+render_header('Crear cuenta', 'cuenta');
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | lospatitos.com</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-<body>
-    <main class="auth-layout">
-        <section class="card auth-card">
+<section class="section">
+    <div class="container">
+        <div class="auth-wrap">
             <div class="brand">
-                <span class="brand__badge">Registro</span>
-                <h1>Crear cuenta</h1>
-                <p>Formulario de alta sencillo con validación en cliente y servidor.</p>
+                <div class="brand__art">🐤</div>
+                <h1>Únete a la bandada</h1>
+                <p>Crea tu cuenta para comprar, seguir pedidos y dejar reseñas.</p>
             </div>
 
-            <?php if ($errors !== []): ?>
-                <div class="alert alert--error">
-                    <strong>Se encontraron errores:</strong>
-                    <ul>
-                        <?php foreach ($errors as $error): ?>
-                            <li><?= e($error) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+            <div class="card">
+                <?php if ($errors !== []): ?>
+                    <div class="alert alert--error">
+                        <strong>Se encontraron errores:</strong>
+                        <ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" class="form" data-validate="register" novalidate>
+                    <?= csrf_input() ?>
+                    <label class="form__group">
+                        <span>Nombre completo</span>
+                        <input type="text" name="nombre" value="<?= e($nombre) ?>" required minlength="3" maxlength="120">
+                    </label>
+                    <label class="form__group">
+                        <span>Correo electrónico</span>
+                        <input type="email" name="correo" value="<?= e($correo) ?>" required maxlength="150">
+                    </label>
+                    <label class="form__group">
+                        <span>Nombre de usuario</span>
+                        <input type="text" name="usuario" value="<?= e($usuario) ?>" required minlength="4" maxlength="50" pattern="[a-zA-Z0-9._-]{4,50}">
+                    </label>
+                    <div class="form__row">
+                        <label class="form__group">
+                            <span>Contraseña</span>
+                            <input type="password" name="password" required minlength="8">
+                        </label>
+                        <label class="form__group">
+                            <span>Confirmar contraseña</span>
+                            <input type="password" name="password_confirm" required minlength="8">
+                        </label>
+                    </div>
+                    <button type="submit" class="button button--primary button--block">Registrar cuenta</button>
+                </form>
+
+                <div class="auth-footer">
+                    <a href="login.php">¿Ya tienes cuenta? Inicia sesión</a>
                 </div>
-            <?php endif; ?>
-
-            <form method="post" class="form" data-validate="register" novalidate>
-                <?= csrf_input() ?>
-
-                <label class="form__group">
-                    <span>Nombre completo</span>
-                    <input type="text" name="nombre" value="<?= e($nombre) ?>" required minlength="3" maxlength="120">
-                </label>
-
-                <label class="form__group">
-                    <span>Correo electrónico</span>
-                    <input type="email" name="correo" value="<?= e($correo) ?>" required maxlength="150">
-                </label>
-
-                <label class="form__group">
-                    <span>Nombre de usuario</span>
-                    <input type="text" name="usuario" value="<?= e($usuario) ?>" required minlength="4" maxlength="50" pattern="[a-zA-Z0-9._-]{4,50}">
-                </label>
-
-                <label class="form__group">
-                    <span>Contraseña</span>
-                    <input type="password" name="password" required minlength="8">
-                </label>
-
-                <label class="form__group">
-                    <span>Confirmar contraseña</span>
-                    <input type="password" name="password_confirm" required minlength="8">
-                </label>
-
-                <button type="submit" class="button button--primary">Registrar cuenta</button>
-            </form>
-
-            <div class="auth-footer">
-                <a href="index.php">Volver al login</a>
             </div>
-        </section>
-    </main>
-
-    <script src="assets/js/app.js"></script>
-</body>
-</html>
+        </div>
+    </div>
+</section>
+<?php
+render_footer();
