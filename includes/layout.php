@@ -112,8 +112,8 @@ function render_footer(): void
                 <h4>Tienda</h4>
                 <a href="productos.php">Catálogo</a>
                 <a href="productos.php?categoria=edicion-especial">Edición Especial</a>
+                <a href="productos.php?categoria=profesiones">Profesiones</a>
                 <a href="productos.php?categoria=packs">Packs</a>
-                <a href="productos.php?categoria=accesorios">Accesorios</a>
             </div>
             <div class="footer__col">
                 <h4>Compañía</h4>

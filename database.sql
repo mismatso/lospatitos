@@ -10,8 +10,12 @@
 --    Sin esto, MariaDB/MySQL puede lanzar "ERROR 1067 Invalid default value".
 SET NAMES utf8mb4;
 
--- 1) Crear la base de datos si no existe.
-CREATE DATABASE IF NOT EXISTS lospatitos
+-- 1) Eliminar la versión anterior y crear la base de datos desde cero.
+--    ATENCIÓN: esto borra TODOS los datos existentes (usuarios, pedidos,
+--    reseñas, mensajes...) cada vez que se importa este archivo.
+DROP DATABASE IF EXISTS lospatitos;
+
+CREATE DATABASE lospatitos
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
@@ -199,9 +203,10 @@ VALUES
     (1, 'Clásicos', 'clasicos', 'Los patitos de toda la vida, amarillos y entrañables.'),
     (2, 'Edición Especial', 'edicion-especial', 'Patitos temáticos de colección, en tiradas limitadas.'),
     (3, 'Packs', 'packs', 'Familias y combos de patitos a precio especial.'),
-    (4, 'Accesorios', 'accesorios', 'Todo lo que tu patito necesita para brillar.')
+    (4, 'Profesiones', 'profesiones', 'Patitos con oficio: cada uno domina su profesión con mucho cuac.')
 ON DUPLICATE KEY UPDATE
     nombre = VALUES(nombre),
+    slug = VALUES(slug),
     descripcion = VALUES(descripcion);
 
 -- Productos.
@@ -240,14 +245,96 @@ VALUES
     (1, 'Patito Gigante XL', 'patito-gigante-xl',
      'Tamaño descomunal para piscinas y decoración. Imposible que pase desapercibido.',
      24.99, '🦆', 'assets/img/productos/patito-gigante-xl.png', '#ffffff', 12, 0),
-    (4, 'Patito LED Brillante', 'patito-led-brillante',
-     'Cambia de color al contacto con el agua y crea un espectáculo de luces en tu baño nocturno.',
-     11.99, '💡', 'assets/img/productos/patito-led-brillante.png', '#ffffff', 18, 1)
+
+    -- Edición Especial: personajes
+    (2, 'Patito Samurái', 'patito-samurai',
+     'Honor, disciplina y katana en ala. Defiende la bañera con la elegancia de un guerrero milenario.',
+     9.50, '⚔️', 'assets/img/productos/patito-samurai.png', '#ffffff', 26, 0),
+    (2, 'Patito Vampiro', 'patito-vampiro',
+     'Colmillos relucientes y capa con cuello alto. Sale solo de noche... a la hora del baño.',
+     8.99, '🧛', 'assets/img/productos/patito-vampiro.png', '#ffffff', 24, 0),
+    (2, 'Patito Zombie', 'patito-zombie',
+     'Verde, despeinado y con mirada perdida. Un clásico de terror tierno para tu colección.',
+     8.50, '🧟', 'assets/img/productos/patito-zombie.png', '#ffffff', 20, 0),
+    (2, 'Patito Vaquero', 'patito-vaquero',
+     'Sombrero, botas y mucho salero. El sheriff del lejano oeste de tu lavabo.',
+     8.25, '🤠', 'assets/img/productos/patito-vaquero.png', '#ffffff', 27, 0),
+    (2, 'Patita Coreana', 'patito-coreana',
+     'Estrella del K-pop con estilo y carisma. Lista para conquistar el escenario de la tina.',
+     9.25, '🎤', 'assets/img/productos/patito-coreana.png', '#ffffff', 30, 1),
+    (2, 'Patito Nerd', 'patito-nerd',
+     'Gafas de pasta, tirantes y mucha inteligencia. El más listo de toda la bandada.',
+     6.99, '🤓', 'assets/img/productos/patito-nerd.png', '#ffffff', 35, 0),
+
+    -- Profesiones: patitos con oficio
+    (4, 'Patito Programador', 'patito-programador',
+     'Café en ala y muchas líneas de código. Convierte cualquier bug en un cuac feliz.',
+     9.99, '💻', 'assets/img/productos/patito-programador.png', '#ffffff', 50, 1),
+    (4, 'Patito Hacker', 'patito-hacker',
+     'Sudadera con capucha y dedos veloces. Accede a todos los secretos... del cajón de juguetes.',
+     10.50, '🕶️', 'assets/img/productos/patito-hacker.png', '#ffffff', 30, 1),
+    (4, 'Patito Doctor', 'patito-doctor',
+     'Bata blanca y estetoscopio. Receta dosis diarias de diversión y burbujas.',
+     9.50, '🩺', 'assets/img/productos/patito-doctor.png', '#ffffff', 40, 1),
+    (4, 'Patito Enfermero', 'patito-enfermero',
+     'Siempre atento y con una sonrisa. Cuida de toda la bandada con cariño.',
+     8.99, '💉', 'assets/img/productos/patito-enfermero.png', '#ffffff', 32, 0),
+    (4, 'Patito Chef', 'patito-chef',
+     'Gorro alto y cuchara en ala. El maestro de la cocina más sabrosa del estanque.',
+     9.25, '👨‍🍳', 'assets/img/productos/patito-chef.png', '#ffffff', 38, 1),
+    (4, 'Patito Arquitecto', 'patito-arquitecto',
+     'Planos bajo el ala y casco amarillo. Diseña las bañeras más espectaculares.',
+     9.75, '📐', 'assets/img/productos/patito-arquitecto.png', '#ffffff', 22, 0),
+    (4, 'Patito Biólogo', 'patito-biologo',
+     'Lupa, libreta y mucha curiosidad. Estudia cada burbuja como si fuera un ecosistema.',
+     9.00, '🔬', 'assets/img/productos/patito-biologo.png', '#ffffff', 20, 0),
+    (4, 'Patito Biólogo Marino', 'patito-biologo-marino',
+     'Traje de buceo y amor por el océano. Explora las profundidades de tu tina.',
+     9.50, '🐠', 'assets/img/productos/patito-biologo-marino.png', '#ffffff', 24, 0),
+    (4, 'Patito Cantante', 'patito-cantante',
+     'Micrófono en ala y mucha voz. Pone a cantar a toda la familia bajo la ducha.',
+     8.75, '🎙️', 'assets/img/productos/patito-cantante.png', '#ffffff', 28, 0),
+    (4, 'Patito Carpintero', 'patito-carpintero',
+     'Martillo, serrucho y olor a madera. Construye los mejores barquitos de juguete.',
+     8.50, '🔨', 'assets/img/productos/patito-carpintero.png', '#ffffff', 26, 0),
+    (4, 'Patito Comediante', 'patito-comediante',
+     'Nariz roja y chistes infinitos. Garantiza risas en cada chapuzón.',
+     7.99, '🤣', 'assets/img/productos/patito-comediante.png', '#ffffff', 25, 0),
+    (4, 'Patito Escritor', 'patito-escritor',
+     'Pluma en ala y mil historias por contar. Narra las aventuras de la bandada.',
+     8.25, '✍️', 'assets/img/productos/patito-escritor.png', '#ffffff', 21, 0),
+    (4, 'Patito Futbolero', 'patito-futbolero',
+     'Camiseta, balón y mucha pasión. Marca goles desde la portería de la bañera.',
+     8.99, '⚽', 'assets/img/productos/patito-futbolero.png', '#ffffff', 44, 1),
+    (4, 'Patito Guitarrista', 'patito-guitarrista',
+     'Guitarra al hombro y alma de rockstar. Pone ritmo a la hora del baño.',
+     9.25, '🎸', 'assets/img/productos/patito-guitarrista.png', '#ffffff', 27, 0),
+    (4, 'Patito Mecánico', 'patito-mecanico',
+     'Overol, llave inglesa y manos hábiles. Repara cualquier juguete que no flote.',
+     8.75, '🔧', 'assets/img/productos/patito-mecanico.png', '#ffffff', 30, 0),
+    (4, 'Patito Pianista', 'patito-pianista',
+     'Frac elegante y dedos mágicos. Interpreta melodías que hacen bailar las burbujas.',
+     9.50, '🎹', 'assets/img/productos/patito-pianista.png', '#ffffff', 23, 0),
+    (4, 'Patito Pintor', 'patito-pintor',
+     'Boina, paleta y mucho color. Convierte tu baño en una obra de arte.',
+     8.75, '🎨', 'assets/img/productos/patito-pintor.png', '#ffffff', 29, 0),
+    (4, 'Patito Profesor', 'patito-profesor',
+     'Lentes, libros y mucha sabiduría. Enseña a flotar a los patitos más jóvenes.',
+     8.50, '📚', 'assets/img/productos/patito-profesor.png', '#ffffff', 31, 0),
+    (4, 'Patito Sastre', 'patito-sastre',
+     'Cinta métrica al cuello y aguja en ala. Confecciona los mejores trajes de la bandada.',
+     8.99, '🧵', 'assets/img/productos/patito-sastre.png', '#ffffff', 18, 0),
+    (4, 'Patito Soldador', 'patito-soldador',
+     'Careta protectora y chispas por doquier. Une con fuego las piezas más difíciles.',
+     9.25, '🛠️', 'assets/img/productos/patito-soldador.png', '#ffffff', 22, 0)
 ON DUPLICATE KEY UPDATE
+    categoria_id = VALUES(categoria_id),
+    nombre = VALUES(nombre),
     descripcion = VALUES(descripcion),
     precio = VALUES(precio),
     emoji = VALUES(emoji),
     imagen = VALUES(imagen),
+    color_hex = VALUES(color_hex),
     stock = VALUES(stock),
     destacado = VALUES(destacado);
 
