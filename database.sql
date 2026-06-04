@@ -1,8 +1,14 @@
 -- =========================================================
 -- Base de datos demo para lospatitos.com
 -- Tienda ficticia de patitos de hule "Los Patitos"
--- Requisitos: MySQL 8+
+-- Requisitos: MySQL 8+ o MariaDB 10.5+
 -- =========================================================
+
+-- 0) Forzar utf8mb4 en la sesión de importación.
+--    Necesario para que los emojis (caracteres de 4 bytes, p. ej. 🦆) se
+--    interpreten correctamente tanto en los DEFAULT como en los INSERT.
+--    Sin esto, MariaDB/MySQL puede lanzar "ERROR 1067 Invalid default value".
+SET NAMES utf8mb4;
 
 -- 1) Crear la base de datos si no existe.
 CREATE DATABASE IF NOT EXISTS lospatitos
